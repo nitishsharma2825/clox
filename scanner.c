@@ -30,39 +30,6 @@ static bool isAlpha(char c)
     return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
 }
 
-Token scanToken()
-{
-    skipWhitespace();
-    scanner.start = scanner.current;
-    if (isAtEnd()) return makeToken(TOKEN_EOF);
-
-    char c = advance();
-    if (isAlpha(c)) return identifier();
-    if (isDigit(c)) return number();
-
-    switch (c)
-    {
-        case '(': return makeToken(TOKEN_LEFT_PAREN);
-        case ')': return makeToken(TOKEN_RIGHT_PAREN);
-        case '{': return makeToken(TOKEN_LEFT_BRACE);
-        case '}': return makeToken(TOKEN_RIGHT_BRACE);
-        case ';': return makeToken(TOKEN_SEMICOLON);
-        case ',': return makeToken(TOKEN_COMMA);
-        case '.': return makeToken(TOKEN_DOT);
-        case '-': return makeToken(TOKEN_MINUS);
-        case '+': return makeToken(TOKEN_PLUS);
-        case '*': return makeToken(TOKEN_STAR);
-        case '/': return makeToken(TOKEN_SLASH);
-        case '!': return makeToken(match('=') ? TOKEN_BANG_EQUAL : TOKEN_BANG);
-        case '=': return makeToken(match('=') ? TOKEN_EQUAL_EQUAL : TOKEN_EQUAL);
-        case '<': return makeToken(match('=') ? TOKEN_LESS_EQUAL : TOKEN_LESS);
-        case '>': return makeToken(match('=') ? TOKEN_GREATER_EQUAL : TOKEN_GREATER);
-        case '"': return string();
-    }
-
-    return errorToken("Unexpected character.");
-}
-
 static bool isAtEnd()
 {
     return *scanner.current == '\0';
@@ -113,7 +80,7 @@ static Token errorToken(const char* message)
     return token;
 }
 
-static void skipWhiteSpace()
+static void skipWhitespace()
 {
     for (;;)
     {
@@ -196,21 +163,16 @@ static TokenType identifierType()
         case 'v': return checkKeyword(1, 2, "ar", TOKEN_VAR);
         case 'w': return checkKeyword(1, 4, "hile", TOKEN_WHILE);
     }
+
+    return TOKEN_IDENTIFIER;
 }
 
-static Token string()
+static Token identifier()
 {
-    while (peek() != '"' && !isAtEnd())
-    {
-        if (peek() == '\n') scanner.line++;
-        advance();
-    }
+    while (isAlpha(peek()) || isDigit(peek())) advance();
 
-    if (isAtEnd()) return errorToken("Unterminated string.");
-
-    // The closing quote.
-    advance();
-    return makeToken(TOKEN_STRING);
+    TokenType type = identifierType();
+    return makeToken(type);
 }
 
 static Token number()
@@ -229,10 +191,51 @@ static Token number()
     return makeToken(TOKEN_NUMBER);
 }
 
-static Token identifier()
+static Token string()
 {
-    while (isAlpha(peek()) || isDigit(peek())) advance();
+    while (peek() != '"' && !isAtEnd())
+    {
+        if (peek() == '\n') scanner.line++;
+        advance();
+    }
 
-    TokenType type = identifierType();
-    return makeToken(type);
+    if (isAtEnd()) return errorToken("Unterminated string.");
+
+    // The closing quote.
+    advance();
+    return makeToken(TOKEN_STRING);
+}
+
+
+Token scanToken()
+{
+    skipWhitespace();
+    scanner.start = scanner.current;
+    if (isAtEnd()) return makeToken(TOKEN_EOF);
+
+    char c = advance();
+    if (isAlpha(c)) return identifier();
+    if (isDigit(c)) return number();
+
+    switch (c)
+    {
+        case '(': return makeToken(TOKEN_LEFT_PAREN);
+        case ')': return makeToken(TOKEN_RIGHT_PAREN);
+        case '{': return makeToken(TOKEN_LEFT_BRACE);
+        case '}': return makeToken(TOKEN_RIGHT_BRACE);
+        case ';': return makeToken(TOKEN_SEMICOLON);
+        case ',': return makeToken(TOKEN_COMMA);
+        case '.': return makeToken(TOKEN_DOT);
+        case '-': return makeToken(TOKEN_MINUS);
+        case '+': return makeToken(TOKEN_PLUS);
+        case '*': return makeToken(TOKEN_STAR);
+        case '/': return makeToken(TOKEN_SLASH);
+        case '!': return makeToken(match('=') ? TOKEN_BANG_EQUAL : TOKEN_BANG);
+        case '=': return makeToken(match('=') ? TOKEN_EQUAL_EQUAL : TOKEN_EQUAL);
+        case '<': return makeToken(match('=') ? TOKEN_LESS_EQUAL : TOKEN_LESS);
+        case '>': return makeToken(match('=') ? TOKEN_GREATER_EQUAL : TOKEN_GREATER);
+        case '"': return string();
+    }
+
+    return errorToken("Unexpected character.");
 }
