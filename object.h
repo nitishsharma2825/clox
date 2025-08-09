@@ -19,7 +19,7 @@ typedef enum
 struct Obj
 {
     ObjType type;
-    struct Obj* next; // for linked list of all objects
+    struct Obj* next; // for linked list of all objects, intrusive list
 };
 
 // struct inheriting from Obj
@@ -30,6 +30,7 @@ struct ObjString
     Obj obj;
     int length;
     char* chars;
+    uint32_t hash;
 };
 
 ObjString* takeString(char* chars, int length);
