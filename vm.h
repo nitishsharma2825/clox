@@ -11,7 +11,7 @@
 // A call frame represents a single ongoing function call
 typedef struct 
 {
-    ObjFunction* function;
+    ObjClosure* closure;
     uint8_t* ip;    // return address after function end
     Value* slots; // points into the VM's value stack at the first slot that this function can use
 } CallFrame;
@@ -24,6 +24,7 @@ typedef struct
     Value* stackTop;
     Table globals;
     Table strings; // string interning, used as set to keep only unique strings
+    ObjUpvalue* openUpvalues; // linked list of all open upvalues
     Obj* objects; // pointer to head of list of objects to free
 } VM;
 
