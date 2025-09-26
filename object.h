@@ -30,6 +30,7 @@ typedef enum
 struct Obj
 {
     ObjType type;
+    bool isMarked; // for garbage collection
     struct Obj* next; // for linked list of all objects, intrusive list
 };
 

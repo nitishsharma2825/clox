@@ -1,0 +1,6 @@
+To try out the program: run the following steps:
+1. make
+2. ./clox.
+
+Then write the programs in the CLI.
+eg: var i = 0; for (; i < 10; i=i+1) {print i;}
