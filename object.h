@@ -16,6 +16,8 @@
 #define IS_FUNCTION(value)    isObjType(value, OBJ_FUNCTION)
 #define AS_FUNCTION(value)    ((ObjFunction*)AS_OBJ(value))
 #define AS_NATIVE(value)      (((ObjNative*)AS_OBJ(value))->function)
+#define IS_CLASS(value)       isObjType(value, OBJ_CLASS)
+#define AS_CLASS(value)       ((ObjClass*)AS_OBJ(value))
 
 typedef enum
 {
@@ -23,7 +25,8 @@ typedef enum
     OBJ_NATIVE,
     OBJ_FUNCTION,
     OBJ_CLOSURE,
-    OBJ_UPVALUE
+    OBJ_UPVALUE,
+    OBJ_CLASS
 } ObjType;
 
 // state common across all object types
@@ -70,15 +73,23 @@ typedef struct ObjUpvalue
     struct ObjUpvalue* next; // for linked list of open upvalues
 } ObjUpvalue;
 
-typedef struct {
+typedef struct
+{
     Obj obj;
     ObjFunction* function;
     ObjUpvalue** upvalues;
     int upvalueCount;
 } ObjClosure;
 
+typedef struct
+{
+    Obj obj;
+    ObjString* name;
+} ObjClass;
+
 ObjClosure* newClosure(ObjFunction* function);
 ObjFunction* newFunction();
+ObjClass* newClass(ObjString* name);
 
 ObjNative* newNative(NativeFn function);
 
