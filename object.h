@@ -4,6 +4,7 @@
 #include "common.h"
 #include "chunk.h"
 #include "value.h"
+#include "table.h"
 
 #define OBJ_TYPE(value)       (AS_OBJ(value)->type)
 
@@ -18,6 +19,8 @@
 #define AS_NATIVE(value)      (((ObjNative*)AS_OBJ(value))->function)
 #define IS_CLASS(value)       isObjType(value, OBJ_CLASS)
 #define AS_CLASS(value)       ((ObjClass*)AS_OBJ(value))
+#define IS_INSTANCE(value)    isObjType(value, OBJ_INSTANCE)
+#define AS_INSTANCE(value)    ((ObjInstance*)AS_OBJ(value))
 
 typedef enum
 {
@@ -26,7 +29,8 @@ typedef enum
     OBJ_FUNCTION,
     OBJ_CLOSURE,
     OBJ_UPVALUE,
-    OBJ_CLASS
+    OBJ_CLASS,
+    OBJ_INSTANCE
 } ObjType;
 
 // state common across all object types
@@ -87,9 +91,17 @@ typedef struct
     ObjString* name;
 } ObjClass;
 
+typedef struct
+{
+    Obj obj;
+    ObjClass* klass;
+    Table fields;
+} ObjInstance;
+
 ObjClosure* newClosure(ObjFunction* function);
 ObjFunction* newFunction();
 ObjClass* newClass(ObjString* name);
+ObjInstance* newInstance(ObjClass* klass);
 
 ObjNative* newNative(NativeFn function);
 
