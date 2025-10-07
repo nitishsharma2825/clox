@@ -21,6 +21,8 @@
 #define AS_CLASS(value)       ((ObjClass*)AS_OBJ(value))
 #define IS_INSTANCE(value)    isObjType(value, OBJ_INSTANCE)
 #define AS_INSTANCE(value)    ((ObjInstance*)AS_OBJ(value))
+#define IS_BOUND_METHOD(value) isObjType(value, OBJ_BOUND_METHOD)
+#define AS_BOUND_METHOD(value)    ((ObjBoundMethod*)AS_OBJ(value))
 
 typedef enum
 {
@@ -30,10 +32,14 @@ typedef enum
     OBJ_CLOSURE,
     OBJ_UPVALUE,
     OBJ_CLASS,
-    OBJ_INSTANCE
+    OBJ_INSTANCE,
+    OBJ_BOUND_METHOD
 } ObjType;
 
+// Aside: 3 ways to declare structs: anonymous, tagged, aliased, difference in ways to use them. use tag+alias or forward declare
+
 // state common across all object types
+// tagged
 struct Obj
 {
     ObjType type;
@@ -41,6 +47,7 @@ struct Obj
     struct Obj* next; // for linked list of all objects, intrusive list
 };
 
+// aliased
 typedef struct
 {
     Obj obj;
@@ -69,6 +76,7 @@ struct ObjString
     uint32_t hash;
 };
 
+// tagged + aliased
 typedef struct ObjUpvalue
 {
     Obj obj;
@@ -89,6 +97,7 @@ typedef struct
 {
     Obj obj;
     ObjString* name;
+    Table methods;
 } ObjClass;
 
 typedef struct
@@ -98,10 +107,18 @@ typedef struct
     Table fields;
 } ObjInstance;
 
+typedef struct
+{
+    Obj obj;
+    Value receiver; // for ObjInstance
+    ObjClosure* method;
+} ObjBoundMethod;
+
 ObjClosure* newClosure(ObjFunction* function);
 ObjFunction* newFunction();
 ObjClass* newClass(ObjString* name);
 ObjInstance* newInstance(ObjClass* klass);
+ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method);
 
 ObjNative* newNative(NativeFn function);
 

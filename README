@@ -4,3 +4,7 @@ To try out the program: run the following steps:
 
 Then write the programs in the CLI.
 eg: var i = 0; for (; i < 10; i=i+1) {print i;}
+
+TODO:
+1. Fix method calling in classes
+eg: class A { foo() { print "foo"; } } var oops = A(); oops.foo();
